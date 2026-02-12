@@ -122,6 +122,30 @@
             font-size: 0.8rem;
         }
 
+        .team-avatar {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: var(--white);
+            flex-shrink: 0;
+        }
+
+        .team-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .team-name { font-size: 0.85rem; font-weight: 500; }
+
+        .av-ferik { background: #6366f1; }
+        .av-lefto { background: #0891b2; }
+        .av-ahmed { background: #d97706; }
+        .av-tanja { background: #db2777; }
+        .av-veronique { background: #059669; }
+
         .content { padding: 28px; flex: 1; }
 
         /* ── BUTTONS ────────────────────────────── */
@@ -663,7 +687,7 @@
                 <span class="nav-icon">&#9823;</span> PAX declaraties
             </div>
             <div class="nav-item active" id="nav-customs" onclick="showPage('list')">
-                <span class="nav-icon">&#9744;</span> Customs declaraties
+                <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span> Customs declaraties
             </div>
 
             <div class="nav-section">Beheer</div>
@@ -741,6 +765,7 @@
                             <th>Scheepsnaam</th>
                             <th>Haven</th>
                             <th>Agent</th>
+                            <th>Behandelaar</th>
                             <th>Status declaratie</th>
                             <th>Laatste update</th>
                         </tr>
@@ -753,6 +778,7 @@
                             <td><strong>WILSON FLEX I</strong></td>
                             <td>Antwerpen</td>
                             <td>Agency BV</td>
+                            <td><div class="team-cell"><span class="team-avatar av-ferik">FE</span><span class="team-name">Ferik</span></div></td>
                             <td><span class="badge badge-grey">Ontwerp</span></td>
                             <td>12/02 09:15</td>
                         </tr>
@@ -763,6 +789,7 @@
                             <td><strong>BBC OREGON</strong></td>
                             <td>Zeebrugge</td>
                             <td>Maritime BV</td>
+                            <td><div class="team-cell"><span class="team-avatar av-ahmed">AH</span><span class="team-name">Ahmed</span></div></td>
                             <td><span class="badge badge-yellow">In behandeling</span></td>
                             <td>12/02 08:30</td>
                         </tr>
@@ -773,6 +800,7 @@
                             <td><strong>STELLAPRIMA</strong></td>
                             <td>Antwerpen</td>
                             <td>Agency BV</td>
+                            <td><div class="team-cell"><span class="team-avatar av-tanja">TA</span><span class="team-name">Tanja</span></div></td>
                             <td><span class="badge badge-green">Goedgekeurd</span></td>
                             <td>11/02 16:45</td>
                         </tr>
@@ -783,6 +811,7 @@
                             <td><strong>NORDANA SEA</strong></td>
                             <td>Zeebrugge</td>
                             <td>Trans NV</td>
+                            <td><div class="team-cell"><span class="team-avatar av-lefto">LE</span><span class="team-name">Lefto</span></div></td>
                             <td><span class="badge badge-red">Afgekeurd</span></td>
                             <td>11/02 14:20</td>
                         </tr>
@@ -793,6 +822,7 @@
                             <td><strong>HAPPY STAR</strong></td>
                             <td>Antwerpen</td>
                             <td>Agency BV</td>
+                            <td><div class="team-cell"><span class="team-avatar av-veronique">VE</span><span class="team-name">Veronique</span></div></td>
                             <td><span class="badge badge-blue">Ge&euml;xporteerd</span></td>
                             <td>10/02 11:00</td>
                         </tr>
@@ -811,6 +841,7 @@
                             <th>Scheepsnaam</th>
                             <th>Haven</th>
                             <th>Agent</th>
+                            <th>Behandelaar</th>
                             <th>Status declaratie</th>
                             <th>Laatste update</th>
                         </tr>
@@ -823,6 +854,7 @@
                             <td><strong>AMBER LAGOON</strong></td>
                             <td>Antwerpen</td>
                             <td>Agency BV</td>
+                            <td><div class="team-cell"><span class="team-avatar av-veronique">VE</span><span class="team-name">Veronique</span></div></td>
                             <td><span class="badge badge-lightgrey">Gearchiveerd</span></td>
                             <td>06/02 09:00</td>
                         </tr>
@@ -846,6 +878,7 @@
                     <div class="meta-item">IMO: <strong id="detail-imo">9134270</strong></div>
                     <div class="meta-item">ETA: <strong id="detail-eta">12/02/2026 14:00</strong></div>
                     <div class="meta-item">Agent: <strong id="detail-agent">Agency BV</strong></div>
+                    <div class="meta-item">Behandelaar: <span id="detail-assignee" class="team-cell" style="display:inline-flex;"><span class="team-avatar av-ferik" id="detail-assignee-av" style="width:22px;height:22px;font-size:0.6rem;">FE</span><strong id="detail-assignee-name" style="margin-left:4px;">Ferik</strong></span></div>
                 </div>
                 <div class="btn-group" style="margin-top:16px;" id="detail-actions">
                     <button class="btn btn-primary" onclick="saveDeclaration()">&#128190; Opslaan</button>
@@ -1498,12 +1531,20 @@
 // DATA
 // ═══════════════════════════════════════════════════════
 
+const teamMembers = {
+    ferik:     { name: 'Ferik',     initials: 'FE', cssClass: 'av-ferik' },
+    lefto:     { name: 'Lefto',     initials: 'LE', cssClass: 'av-lefto' },
+    ahmed:     { name: 'Ahmed',     initials: 'AH', cssClass: 'av-ahmed' },
+    tanja:     { name: 'Tanja',     initials: 'TA', cssClass: 'av-tanja' },
+    veronique: { name: 'Veronique', initials: 'VE', cssClass: 'av-veronique' },
+};
+
 const declarations = [
-    { id: 0, ucr: 'UCR-289341', vessel: 'WILSON FLEX I', imo: '9134270', eta: '12/02/2026 14:00', port: 'Antwerpen', agent: 'Agency BV', status: 'Ontwerp', statusClass: 'badge-grey', callStatus: 'Verwacht', callClass: 'badge-orange', updated: '12/02 09:15' },
-    { id: 1, ucr: 'UCR-289340', vessel: 'BBC OREGON', imo: '9505025', eta: '12/02/2026 08:00', port: 'Zeebrugge', agent: 'Maritime BV', status: 'In behandeling', statusClass: 'badge-yellow', callStatus: 'Gemeerd', callClass: 'badge-green', updated: '12/02 08:30' },
-    { id: 2, ucr: 'UCR-289338', vessel: 'STELLAPRIMA', imo: '9365886', eta: '11/02/2026 22:00', port: 'Antwerpen', agent: 'Agency BV', status: 'Goedgekeurd', statusClass: 'badge-green', callStatus: 'Gemeerd', callClass: 'badge-green', updated: '11/02 16:45' },
-    { id: 3, ucr: 'UCR-289335', vessel: 'NORDANA SEA', imo: '9444752', eta: '11/02/2026 06:00', port: 'Zeebrugge', agent: 'Trans NV', status: 'Afgekeurd', statusClass: 'badge-red', callStatus: 'Gemeerd', callClass: 'badge-green', updated: '11/02 14:20' },
-    { id: 4, ucr: 'UCR-289330', vessel: 'HAPPY STAR', imo: '9233468', eta: '10/02/2026 16:30', port: 'Antwerpen', agent: 'Agency BV', status: 'Ge\u00ebxporteerd', statusClass: 'badge-blue', callStatus: 'Gemeerd', callClass: 'badge-green', updated: '10/02 11:00' },
+    { id: 0, ucr: 'UCR-289341', vessel: 'WILSON FLEX I', imo: '9134270', eta: '12/02/2026 14:00', port: 'Antwerpen', agent: 'Agency BV', assignee: 'ferik', status: 'Ontwerp', statusClass: 'badge-grey', callStatus: 'Verwacht', callClass: 'badge-orange', updated: '12/02 09:15' },
+    { id: 1, ucr: 'UCR-289340', vessel: 'BBC OREGON', imo: '9505025', eta: '12/02/2026 08:00', port: 'Zeebrugge', agent: 'Maritime BV', assignee: 'ahmed', status: 'In behandeling', statusClass: 'badge-yellow', callStatus: 'Gemeerd', callClass: 'badge-green', updated: '12/02 08:30' },
+    { id: 2, ucr: 'UCR-289338', vessel: 'STELLAPRIMA', imo: '9365886', eta: '11/02/2026 22:00', port: 'Antwerpen', agent: 'Agency BV', assignee: 'tanja', status: 'Goedgekeurd', statusClass: 'badge-green', callStatus: 'Gemeerd', callClass: 'badge-green', updated: '11/02 16:45' },
+    { id: 3, ucr: 'UCR-289335', vessel: 'NORDANA SEA', imo: '9444752', eta: '11/02/2026 06:00', port: 'Zeebrugge', agent: 'Trans NV', assignee: 'lefto', status: 'Afgekeurd', statusClass: 'badge-red', callStatus: 'Gemeerd', callClass: 'badge-green', updated: '11/02 14:20' },
+    { id: 4, ucr: 'UCR-289330', vessel: 'HAPPY STAR', imo: '9233468', eta: '10/02/2026 16:30', port: 'Antwerpen', agent: 'Agency BV', assignee: 'veronique', status: 'Ge\u00ebxporteerd', statusClass: 'badge-blue', callStatus: 'Gemeerd', callClass: 'badge-green', updated: '10/02 11:00' },
 ];
 
 let currentDecl = 0;
@@ -1571,6 +1612,17 @@ function openDeclaration(idx) {
     document.getElementById('detail-imo').textContent = d.imo;
     document.getElementById('detail-eta').textContent = d.eta;
     document.getElementById('detail-agent').textContent = d.agent;
+
+    // Update assignee
+    const tm = teamMembers[d.assignee];
+    if (tm) {
+        document.getElementById('detail-assignee-av').className = `team-avatar ${tm.cssClass}`;
+        document.getElementById('detail-assignee-av').textContent = tm.initials;
+        document.getElementById('detail-assignee-av').style.width = '22px';
+        document.getElementById('detail-assignee-av').style.height = '22px';
+        document.getElementById('detail-assignee-av').style.fontSize = '0.6rem';
+        document.getElementById('detail-assignee-name').textContent = tm.name;
+    }
 
     // Update form fields for this declaration
     document.getElementById('f-imo').value = d.imo;
