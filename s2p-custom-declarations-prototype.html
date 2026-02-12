@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S2P — Customs Declaraties</title>
+    <style>
+        :root {
+            --primary: #1a56db;
+            --primary-hover: #1648b8;
+            --primary-light: #e8eefb;
+            --success: #27ae60;
+            --success-light: #d1fae5;
+            --warning: #f39c12;
+            --warning-light: #fef3c7;
+            --danger: #e74c3c;
+            --danger-light: #fee2e2;
+            --info: #3498db;
+            --info-light: #dbeafe;
+            --grey: #6b7280;
+            --grey-light: #f3f4f6;
+            --dark: #1f2937;
+            --border: #e5e7eb;
+            --bg: #f9fafb;
+            --white: #ffffff;
+            --sidebar-w: 240px;
+            --topbar-h: 56px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--dark);
+            background: var(--bg);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        /* ── LAYOUT ─────────────────────────────── */
+        .app { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--dark);
+            color: var(--white);
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-logo {
+            padding: 20px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            letter-spacing: -0.5px;
+        }
+
+        .sidebar-logo span { color: #60a5fa; }
+
+        .sidebar-nav { flex: 1; padding: 12px 0; }
+
+        .nav-section {
+            padding: 8px 20px 4px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9ca3af;
+            margin-top: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            color: #d1d5db;
+            cursor: pointer;
+            font-size: 0.88rem;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+        .nav-item.active { background: rgba(59,130,246,0.15); color: #60a5fa; border-left-color: #60a5fa; }
+
+        .nav-icon { width: 18px; text-align: center; font-size: 1rem; }
+
+        .main-area {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            height: var(--topbar-h);
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-left { font-weight: 600; font-size: 1rem; }
+        .topbar-right { display: flex; align-items: center; gap: 16px; }
+
+        .avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: var(--white);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .content { padding: 28px; flex: 1; }
+
+        /* ── BUTTONS ────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-hover); }
+
+        .btn-secondary { background: var(--white); color: var(--dark); border-color: var(--border); }
+        .btn-secondary:hover { background: var(--grey-light); }
+
+        .btn-success { background: var(--success); color: var(--white); }
+        .btn-success:hover { background: #219a52; }
+
+        .btn-warning { background: var(--warning); color: var(--white); }
+        .btn-warning:hover { background: #d68910; }
+
+        .btn-danger { background: var(--danger); color: var(--white); }
+        .btn-danger:hover { background: #c0392b; }
+
+        .btn-ghost { background: transparent; color: var(--primary); }
+        .btn-ghost:hover { background: var(--primary-light); }
+
+        .btn-sm { padding: 5px 10px; font-size: 0.8rem; }
+
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        /* ── BADGES ─────────────────────────────── */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-grey { background: #e5e7eb; color: #4b5563; }
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-orange { background: #fed7aa; color: #c2410c; }
+        .badge-yellow { background: #fef3c7; color: #92400e; }
+        .badge-green { background: #d1fae5; color: #065f46; }
+        .badge-red { background: #fee2e2; color: #991b1b; }
+        .badge-lightgrey { background: #f3f4f6; color: #9ca3af; }
+
+        /* ── CARDS ──────────────────────────────── */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border-left: 4px solid var(--grey);
+        }
+
+        .summary-card.green { border-left-color: var(--success); }
+        .summary-card.orange { border-left-color: var(--warning); }
+        .summary-card.blue { border-left-color: var(--info); }
+
+        .summary-card h4 { font-size: 0.75rem; color: var(--grey); text-transform: uppercase; letter-spacing: 0.5px; }
+        .summary-card .value { font-size: 1.7rem; font-weight: 700; margin-top: 4px; }
+
+        /* ── TABLE ──────────────────────────────── */
+        .table-wrap {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th {
+            background: var(--grey-light);
+            padding: 12px 14px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--grey);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        .table-wrap tr:hover td { background: #f8fafc; cursor: pointer; }
+
+        /* ── TAB BAR ────────────────────────────── */
+        .tabs-header {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 0;
+            background: var(--white);
+            border-radius: 12px 12px 0 0;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 14px 22px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--grey);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            white-space: nowrap;
+            transition: all 0.15s;
+            position: relative;
+        }
+
+        .tab-btn:hover { color: var(--primary); }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        .tab-btn .tab-error {
+            position: absolute;
+            top: 8px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--danger);
+            display: none;
+        }
+
+        .tab-btn.has-error .tab-error { display: block; }
+
+        .tab-content {
+            background: var(--white);
+            border-radius: 0 0 12px 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            display: none;
+        }
+
+        .tab-content.active { display: block; }
+
+        /* ── FORM FIELDS ────────────────────────── */
+        .form-section {
+            margin-bottom: 28px;
+        }
+
+        .form-section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .form-grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .form-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group.span-2 { grid-column: span 2; }
+        .form-group.span-3 { grid-column: span 3; }
+
+        .form-group label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--grey);
+        }
+
+        .form-group label .autofill-tag {
+            background: var(--info-light);
+            color: #1e40af;
+            font-size: 0.65rem;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-weight: 700;
+            margin-left: 4px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.88rem;
+            font-family: inherit;
+            color: var(--dark);
+            background: var(--white);
+            transition: border-color 0.15s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26,86,219,0.1);
+        }
+
+        .form-group input[readonly] { background: var(--grey-light); color: var(--grey); }
+
+        /* ── TOGGLE ─────────────────────────────── */
+        .toggle-wrap { display: flex; align-items: center; gap: 10px; padding-top: 4px; }
+
+        .toggle {
+            width: 42px;
+            height: 24px;
+            border-radius: 12px;
+            background: #d1d5db;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .toggle.on { background: var(--success); }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--white);
+            transition: transform 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle.on::after { transform: translateX(18px); }
+
+        .toggle-label { font-size: 0.85rem; font-weight: 500; }
+
+        /* ── LIST VIEW HEADER ───────────────────── */
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+        .page-header p { color: var(--grey); font-size: 0.9rem; }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        /* ── TAB TOGGLE for list view ───────────── */
+        .list-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 16px;
+        }
+
+        .list-tab {
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            background: var(--white);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: var(--grey);
+            transition: all 0.15s;
+        }
+
+        .list-tab:first-child { border-radius: 8px 0 0 8px; }
+        .list-tab:last-child { border-radius: 0 8px 8px 0; }
+        .list-tab.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
+
+        /* ── DETAIL HEADER ──────────────────────── */
+        .detail-header {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .detail-header .back-link {
+            font-size: 0.85rem;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .detail-header .back-link:hover { text-decoration: underline; }
+
+        .detail-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .detail-title-row h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .detail-meta {
+            display: flex;
+            gap: 24px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .detail-meta .meta-item {
+            font-size: 0.82rem;
+            color: var(--grey);
+        }
+
+        .detail-meta .meta-item strong { color: var(--dark); }
+
+        /* ── ITEMS TABLE in tab 4 ───────────────── */
+        .items-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .items-actions { display: flex; gap: 6px; }
+
+        /* ── MODAL ──────────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+        .modal {
+            background: var(--white);
+            border-radius: 16px;
+            width: 560px;
+            max-width: 95vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            transform: translateY(20px);
+            transition: transform 0.2s;
+        }
+
+        .modal-overlay.open .modal { transform: translateY(0); }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h3 { font-size: 1.1rem; }
+
+        .modal-close {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: var(--grey-light);
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: var(--grey);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover { background: var(--border); }
+
+        .modal-body { padding: 24px; }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .modal-wide { width: 720px; }
+
+        /* ── CONFIG PAGE ────────────────────────── */
+        .config-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+
+        .config-card h3 {
+            font-size: 1rem;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .mapping-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--grey-light);
+        }
+
+        .mapping-row:last-child { border-bottom: none; }
+
+        /* ── TOAST ──────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--dark);
+            color: var(--white);
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            z-index: 300;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            pointer-events: none;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        .toast.show { opacity: 1; transform: translateY(0); pointer-events: all; }
+
+        /* ── EMPTY STATE ────────────────────────── */
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--grey);
+        }
+
+        .empty-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+        /* ── RESPONSIVE ─────────────────────────── */
+        @media (max-width: 1024px) {
+            .summary-cards { grid-template-columns: repeat(2, 1fr); }
+            .form-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-area { margin-left: 0; }
+            .summary-cards { grid-template-columns: 1fr 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-group.span-2, .form-group.span-3 { grid-column: span 1; }
+        }
+
+        /* ── VALIDATION ─────────────────────────── */
+        .field-error input, .field-error select { border-color: var(--danger); }
+        .error-msg { color: var(--danger); font-size: 0.75rem; margin-top: 2px; display: none; }
+        .field-error .error-msg { display: block; }
+
+        /* ── SEARCH ─────────────────────────────── */
+        .search-input {
+            padding: 8px 12px 8px 34px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            width: 260px;
+            background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242.656a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E") no-repeat 10px center;
+        }
+
+        .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,86,219,0.1); }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <!-- ═══ SIDEBAR ═══ -->
+    <nav class="sidebar">
+        <div class="sidebar-logo">Ship<span>2</span>Port</div>
+        <div class="sidebar-nav">
+            <div class="nav-section">Hoofdmenu</div>
+            <div class="nav-item" onclick="showPage('dashboard')">
+                <span class="nav-icon">&#9633;</span> Dashboard
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">&#9875;</span> Aanloopbeheer
+            </div>
+
+            <div class="nav-section">Declaraties</div>
+            <div class="nav-item">
+                <span class="nav-icon">&#9823;</span> PAX declaraties
+            </div>
+            <div class="nav-item active" id="nav-customs" onclick="showPage('list')">
+                <span class="nav-icon">&#9744;</span> Customs declaraties
+            </div>
+
+            <div class="nav-section">Beheer</div>
+            <div class="nav-item" onclick="showPage('config')">
+                <span class="nav-icon">&#9881;</span> Customs configuratie
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">&#9706;</span> Gebruikers
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══ MAIN ═══ -->
+    <div class="main-area">
+        <div class="topbar">
+            <div class="topbar-left">S2P Platform</div>
+            <div class="topbar-right">
+                <span style="font-size:0.85rem;color:var(--grey);">Agency BV</span>
+                <div class="avatar">JA</div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════ -->
+        <!-- PAGE: LIST VIEW                          -->
+        <!-- ════════════════════════════════════════ -->
+        <div class="content" id="page-list">
+            <div class="page-header">
+                <h1>Customs declaraties</h1>
+                <p>Beheer douaneaangiften voor tijdelijke opslag (TSD)</p>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h4>Totaal declaraties</h4>
+                    <div class="value" id="stat-total">6</div>
+                </div>
+                <div class="summary-card green">
+                    <h4>Goedgekeurd</h4>
+                    <div class="value" id="stat-approved">1</div>
+                </div>
+                <div class="summary-card orange">
+                    <h4>In behandeling</h4>
+                    <div class="value" id="stat-processing">1</div>
+                </div>
+                <div class="summary-card blue">
+                    <h4>Totaal items</h4>
+                    <div class="value" id="stat-items">23</div>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="openNewDeclarationModal()">+ Nieuwe declaratie</button>
+                    <button class="btn btn-secondary" onclick="showPage('config')">&#9881; Customs configuratie</button>
+                </div>
+                <input type="text" class="search-input" placeholder="Zoeken op UCR, schip, agent..." id="searchInput" oninput="filterTable()">
+            </div>
+
+            <!-- List Tabs -->
+            <div class="list-tabs">
+                <div class="list-tab active" onclick="switchListTab(this, 'active')">Actieve declaraties (5)</div>
+                <div class="list-tab" onclick="switchListTab(this, 'archived')">Gearchiveerde (1)</div>
+            </div>
+
+            <!-- Active Table -->
+            <div class="table-wrap" id="table-active">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>UCR-nummer</th>
+                            <th>ETA</th>
+                            <th>Status aanloop</th>
+                            <th>Scheepsnaam</th>
+                            <th>Haven</th>
+                            <th>Agent</th>
+                            <th>Status declaratie</th>
+                            <th>Laatste update</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activeTableBody">
+                        <tr onclick="openDeclaration(0)">
+                            <td>UCR-289341</td>
+                            <td>12/02/2026 14:00</td>
+                            <td><span class="badge badge-orange">Verwacht</span></td>
+                            <td><strong>WILSON FLEX I</strong></td>
+                            <td>Antwerpen</td>
+                            <td>Agency BV</td>
+                            <td><span class="badge badge-grey">Ontwerp</span></td>
+                            <td>12/02 09:15</td>
+                        </tr>
+                        <tr onclick="openDeclaration(1)">
+                            <td>UCR-289340</td>
+                            <td>12/02/2026 08:00</td>
+                            <td><span class="badge badge-green">Gemeerd</span></td>
+                            <td><strong>BBC OREGON</strong></td>
+                            <td>Zeebrugge</td>
+                            <td>Maritime BV</td>
+                            <td><span class="badge badge-yellow">In behandeling</span></td>
+                            <td>12/02 08:30</td>
+                        </tr>
+                        <tr onclick="openDeclaration(2)">
+                            <td>UCR-289338</td>
+                            <td>11/02/2026 22:00</td>
+                            <td><span class="badge badge-green">Gemeerd</span></td>
+                            <td><strong>STELLAPRIMA</strong></td>
+                            <td>Antwerpen</td>
+                            <td>Agency BV</td>
+                            <td><span class="badge badge-green">Goedgekeurd</span></td>
+                            <td>11/02 16:45</td>
+                        </tr>
+                        <tr onclick="openDeclaration(3)">
+                            <td>UCR-289335</td>
+                            <td>11/02/2026 06:00</td>
+                            <td><span class="badge badge-green">Gemeerd</span></td>
+                            <td><strong>NORDANA SEA</strong></td>
+                            <td>Zeebrugge</td>
+                            <td>Trans NV</td>
+                            <td><span class="badge badge-red">Afgekeurd</span></td>
+                            <td>11/02 14:20</td>
+                        </tr>
+                        <tr onclick="openDeclaration(4)">
+                            <td>UCR-289330</td>
+                            <td>10/02/2026 16:30</td>
+                            <td><span class="badge badge-green">Gemeerd</span></td>
+                            <td><strong>HAPPY STAR</strong></td>
+                            <td>Antwerpen</td>
+                            <td>Agency BV</td>
+                            <td><span class="badge badge-blue">Ge&euml;xporteerd</span></td>
+                            <td>10/02 11:00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Archived Table (hidden by default) -->
+            <div class="table-wrap" id="table-archived" style="display:none;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>UCR-nummer</th>
+                            <th>ETA</th>
+                            <th>Status aanloop</th>
+                            <th>Scheepsnaam</th>
+                            <th>Haven</th>
+                            <th>Agent</th>
+                            <th>Status declaratie</th>
+                            <th>Laatste update</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>UCR-289310</td>
+                            <td>05/02/2026 10:00</td>
+                            <td><span class="badge badge-lightgrey">Vertrokken</span></td>
+                            <td><strong>AMBER LAGOON</strong></td>
+                            <td>Antwerpen</td>
+                            <td>Agency BV</td>
+                            <td><span class="badge badge-lightgrey">Gearchiveerd</span></td>
+                            <td>06/02 09:00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════ -->
+        <!-- PAGE: DETAIL VIEW                        -->
+        <!-- ════════════════════════════════════════ -->
+        <div class="content" id="page-detail" style="display:none;">
+            <div class="detail-header">
+                <div class="back-link" onclick="showPage('list')">&#8592; Terug naar overzicht</div>
+                <div class="detail-title-row">
+                    <h2 id="detail-title">Customs declaratie &mdash; WILSON FLEX I</h2>
+                    <span class="badge badge-grey" id="detail-status-badge">Ontwerp</span>
+                </div>
+                <div class="detail-meta">
+                    <div class="meta-item">UCR: <strong id="detail-ucr">UCR-289341</strong></div>
+                    <div class="meta-item">IMO: <strong id="detail-imo">9134270</strong></div>
+                    <div class="meta-item">ETA: <strong id="detail-eta">12/02/2026 14:00</strong></div>
+                    <div class="meta-item">Agent: <strong id="detail-agent">Agency BV</strong></div>
+                </div>
+                <div class="btn-group" style="margin-top:16px;" id="detail-actions">
+                    <button class="btn btn-primary" onclick="saveDeclaration()">&#128190; Opslaan</button>
+                    <button class="btn btn-secondary" onclick="exportDeclaration()">&#128196; Exporteer bestand</button>
+                    <button class="btn btn-success" onclick="submitDeclaration()">&#10148; Verstuur declaratie</button>
+                    <button class="btn btn-secondary" onclick="archiveDeclaration()" id="btn-archive" style="display:none;">&#128451; Archiveer</button>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-header" id="detail-tabs">
+                <button class="tab-btn active" onclick="switchTab(0)">General<span class="tab-error"></span></button>
+                <button class="tab-btn" onclick="switchTab(1)">Parties<span class="tab-error"></span></button>
+                <button class="tab-btn" onclick="switchTab(2)">Master Consignment<span class="tab-error"></span></button>
+                <button class="tab-btn" onclick="switchTab(3)">Consignment Items<span class="tab-error"></span></button>
+                <button class="tab-btn" onclick="switchTab(4)">IRP Envelopes<span class="tab-error"></span></button>
+            </div>
+
+            <!-- TAB 0: General -->
+            <div class="tab-content active" id="tab-0">
+                <div class="form-section">
+                    <div class="form-section-title">Instellingen</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Response Language</label>
+                            <select id="f-lang">
+                                <option value="EN" selected>EN - English</option>
+                                <option value="FR">FR - Fran&ccedil;ais</option>
+                                <option value="NL">NL - Nederlands</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Send to IRP</label>
+                            <div class="toggle-wrap">
+                                <div class="toggle on" id="toggle-irp" onclick="this.classList.toggle('on')"></div>
+                                <span class="toggle-label">Ja</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Customs Office</label>
+                            <select id="f-office">
+                                <option value="BE101000">BE101000 - Antwerpen</option>
+                                <option value="BE201000">BE201000 - Zeebrugge</option>
+                                <option value="BE301000">BE301000 - Gent</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Border Transport Means</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>IMO Number <span class="autofill-tag">AUTO-FILL</span></label>
+                            <input type="text" id="f-imo" value="9134270">
+                        </div>
+                        <div class="form-group">
+                            <label>Stay Reference <span class="autofill-tag">AUTO-FILL</span></label>
+                            <input type="text" id="f-stay" value="ANT-2026-02891">
+                        </div>
+                        <div class="form-group">
+                            <label>Vessel Name <span class="autofill-tag">AUTO-FILL</span></label>
+                            <input type="text" id="f-vessel" value="WILSON FLEX I">
+                        </div>
+                        <div class="form-group">
+                            <label>Identification Type</label>
+                            <select id="f-idtype">
+                                <option value="10" selected>10 - IMO Ship Identification</option>
+                                <option value="20">20 - MMSI Number</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Voyage Number <span class="autofill-tag">AUTO-FILL</span></label>
+                            <input type="text" id="f-voyage" value="VY2026-044">
+                        </div>
+                        <div class="form-group">
+                            <label>Date <span class="autofill-tag">AUTO-FILL</span></label>
+                            <input type="date" id="f-date" value="2026-02-12">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Location of Goods</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Location Type</label>
+                            <select><option value="B" selected>B</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Qualifier</label>
+                            <select><option value="U" selected>U</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>UN/LOCODE <span class="autofill-tag">AUTO-FILL</span></label>
+                            <input type="text" id="f-locode" value="BEBUANR000148">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Warehouse &amp; Unloading</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Warehouse Identifier <span class="autofill-tag">AUTO-FILL</span></label>
+                            <input type="text" id="f-warehouse" value="BETST2400370">
+                        </div>
+                        <div class="form-group">
+                            <label>Warehouse Type</label>
+                            <select><option value="V" selected>V</option><option value="A">A</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Unloading Place</label>
+                            <input type="text" id="f-unloading" value="BEBUANR000148">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Place of Loading &amp; Destination</div>
+                    <div class="form-grid form-grid-2">
+                        <div class="form-group">
+                            <label>Loading UN/LOCODE</label>
+                            <input type="text" id="f-loading" value="ITGOA" placeholder="e.g. ITGOA">
+                        </div>
+                        <div class="form-group">
+                            <label>Discharge UN/LOCODE <span class="autofill-tag">AUTO-FILL</span></label>
+                            <input type="text" id="f-discharge" value="BEANR">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 1: Parties -->
+            <div class="tab-content" id="tab-1">
+                <div class="form-section">
+                    <div class="form-section-title">Declarant (Aangever)</div>
+                    <div class="form-grid">
+                        <div class="form-group span-2">
+                            <label>Company Name <span class="autofill-tag">AUTO-FILL</span></label>
+                            <input type="text" id="f-decl-name" value="Agency BV">
+                        </div>
+                        <div class="form-group">
+                            <label>EORI Number</label>
+                            <input type="text" id="f-decl-eori" value="BE0123456789">
+                        </div>
+                        <div class="form-group span-2">
+                            <label>Address <span class="autofill-tag">AUTO-FILL</span></label>
+                            <input type="text" id="f-decl-addr" value="Noorderlaan 133">
+                        </div>
+                        <div class="form-group">
+                            <label>Postal Code <span class="autofill-tag">AUTO-FILL</span></label>
+                            <input type="text" id="f-decl-zip" value="2030">
+                        </div>
+                        <div class="form-group">
+                            <label>City <span class="autofill-tag">AUTO-FILL</span></label>
+                            <input type="text" id="f-decl-city" value="Antwerpen">
+                        </div>
+                        <div class="form-group">
+                            <label>Country <span class="autofill-tag">AUTO-FILL</span></label>
+                            <select id="f-decl-country">
+                                <option value="BE" selected>BE - Belgium</option>
+                                <option value="NL">NL - Netherlands</option>
+                                <option value="DE">DE - Germany</option>
+                                <option value="FR">FR - France</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Communication</div>
+                    <div class="form-grid form-grid-2">
+                        <div class="form-group">
+                            <label>Email Address <span class="autofill-tag">AUTO-FILL</span></label>
+                            <input type="email" id="f-decl-email" value="customs@agency-bv.be">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: Master Consignment -->
+            <div class="tab-content" id="tab-2">
+                <div class="form-section">
+                    <div class="form-section-title">Transport Document</div>
+                    <div class="form-grid form-grid-2">
+                        <div class="form-group">
+                            <label>Document Identifier (B/L number)</label>
+                            <input type="text" id="f-bl" value="MEDU1234567">
+                        </div>
+                        <div class="form-group">
+                            <label>Document Type</label>
+                            <select id="f-doctype">
+                                <option value="N705" selected>N705 - Bill of Lading</option>
+                                <option value="N714">N714 - House Bill of Lading</option>
+                                <option value="N703">N703 - Master Bill of Lading</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Totals &amp; Previous Document</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Total Gross Mass (kg)</label>
+                            <input type="number" id="f-mass" value="45200">
+                        </div>
+                        <div class="form-group">
+                            <label>Previous Doc Reference</label>
+                            <input type="text" id="f-prev-ref" placeholder="e.g. 24IT0000012345678">
+                        </div>
+                        <div class="form-group">
+                            <label>Previous Doc Type</label>
+                            <select id="f-prev-type">
+                                <option value="">-- None --</option>
+                                <option value="N355">N355 - MRN</option>
+                                <option value="N337">N337 - Temporary Storage</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Consignor (Afzender)</div>
+                    <div class="form-grid">
+                        <div class="form-group span-2">
+                            <label>Name</label>
+                            <input type="text" id="f-consignor-name" value="Mediterranean Shipping Co.">
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select><option value="2" selected>2 - Legal person</option><option value="1">1 - Natural person</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input type="text" value="Via del Porto 12">
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" value="Genova">
+                        </div>
+                        <div class="form-group">
+                            <label>Country</label>
+                            <select>
+                                <option value="IT" selected>IT - Italy</option>
+                                <option value="BE">BE - Belgium</option>
+                                <option value="NL">NL - Netherlands</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Postal Code</label>
+                            <input type="text" value="16126">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Consignee (Geadresseerde)</div>
+                    <div class="form-grid">
+                        <div class="form-group span-2">
+                            <label>Name</label>
+                            <input type="text" id="f-consignee-name" value="Steel Trading Europe NV">
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select><option value="2" selected>2 - Legal person</option><option value="1">1 - Natural person</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Address</label>
+                            <input type="text" value="Keetberglaan 2">
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" value="Antwerpen">
+                        </div>
+                        <div class="form-group">
+                            <label>Country</label>
+                            <select>
+                                <option value="BE" selected>BE - Belgium</option>
+                                <option value="NL">NL - Netherlands</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Postal Code</label>
+                            <input type="text" value="2070">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-title">Notify Party (optional)</div>
+                    <div class="form-grid">
+                        <div class="form-group span-2">
+                            <label>Name</label>
+                            <input type="text" placeholder="(Optional)">
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select><option value="2" selected>2 - Legal person</option><option value="1">1 - Natural person</option></select>
+                        </div>
+                        <div class="form-group"><label>Address</label><input type="text"></div>
+                        <div class="form-group"><label>City</label><input type="text"></div>
+                        <div class="form-group">
+                            <label>Country</label>
+                            <select><option value="">-- Select --</option><option value="BE">BE</option><option value="NL">NL</option><option value="DE">DE</option></select>
+                        </div>
+                        <div class="form-group"><label>Postal Code</label><input type="text"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Consignment Items -->
+            <div class="tab-content" id="tab-3">
+                <div class="items-toolbar">
+                    <div>
+                        <strong id="items-count">3 items</strong>
+                        <span style="color:var(--grey);margin-left:8px;">Totale massa: <strong id="items-mass">45.200 kg</strong></span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary btn-sm" onclick="openItemModal()">+ Item toevoegen</button>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Description of Goods</th>
+                                <th>HS Code</th>
+                                <th>Gross Mass (kg)</th>
+                                <th>TE Type</th>
+                                <th>Package Type</th>
+                                <th>Qty</th>
+                                <th style="width:120px;">Acties</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 4: IRP Envelopes -->
+            <div class="tab-content" id="tab-4">
+                <div class="form-section">
+                    <div class="form-section-title">Customs Status Determination</div>
+                    <p style="color:var(--grey);margin-bottom:16px;">If no proof document is entered, goods default to <span class="badge badge-red">T1</span> (non-Union goods).</p>
+
+                    <div class="items-toolbar">
+                        <strong id="envelopes-count">0 documenten</strong>
+                        <button class="btn btn-primary btn-sm" onclick="openEnvelopeModal()">+ Document toevoegen</button>
+                    </div>
+
+                    <div class="table-wrap" id="envelopesTableWrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Document Type</th>
+                                    <th>Document Reference</th>
+                                    <th>Resultaat</th>
+                                    <th style="width:100px;">Acties</th>
+                                </tr>
+                            </thead>
+                            <tbody id="envelopesTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="empty-state" id="envelopes-empty">
+                        <div class="icon">&#128196;</div>
+                        <p>Geen documenten toegevoegd</p>
+                        <p style="font-size:0.8rem;">Goods worden behandeld als <span class="badge badge-red">T1</span> (non-Union goods)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════ -->
+        <!-- PAGE: CONFIGURATION                      -->
+        <!-- ════════════════════════════════════════ -->
+        <div class="content" id="page-config" style="display:none;">
+            <div class="page-header">
+                <div class="back-link" onclick="showPage('list')" style="font-size:0.85rem;color:var(--primary);cursor:pointer;font-weight:500;margin-bottom:12px;display:inline-flex;align-items:center;gap:4px;">&#8592; Terug naar overzicht</div>
+                <h1>Customs configuratie</h1>
+                <p>Beheer standaardinstellingen voor douaneaangiften</p>
+            </div>
+
+            <div class="config-card">
+                <h3>Registratie &amp; Standaarden</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Customs Registration Number</label>
+                        <input type="text" value="BE0123456789">
+                    </div>
+                    <div class="form-group">
+                        <label>Default Customs Office</label>
+                        <select>
+                            <option value="BE101000" selected>BE101000 - Antwerpen</option>
+                            <option value="BE201000">BE201000 - Zeebrugge</option>
+                            <option value="BE301000">BE301000 - Gent</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Default UN/LOCODE</label>
+                        <input type="text" value="BEBUANR000148">
+                    </div>
+                    <div class="form-group">
+                        <label>Default Warehouse Identifier</label>
+                        <input type="text" value="BETST2400370">
+                    </div>
+                    <div class="form-group">
+                        <label>Default Warehouse Type</label>
+                        <select><option value="V" selected>V</option><option value="A">A</option></select>
+                    </div>
+                </div>
+                <div style="margin-top:20px;">
+                    <button class="btn btn-primary" onclick="showToast('Configuratie opgeslagen', 'success')">Opslaan</button>
+                </div>
+            </div>
+
+            <div class="config-card">
+                <h3>Location-to-LOCODE Mapping</h3>
+                <p style="color:var(--grey);margin-bottom:16px;font-size:0.85rem;">Map S2P terminals/locaties naar UN/LOCODEs voor auto-fill.</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>S2P Locatie</th><th>UN/LOCODE</th><th>Acties</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Kaai 730 - Antwerpen</td>
+                                <td><input type="text" value="BEBUANR000148" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;width:200px;"></td>
+                                <td><button class="btn btn-sm btn-ghost" style="color:var(--danger);">&#10005;</button></td>
+                            </tr>
+                            <tr>
+                                <td>Terminal Zeebrugge</td>
+                                <td><input type="text" value="BEZEE000001" style="padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;width:200px;"></td>
+                                <td><button class="btn btn-sm btn-ghost" style="color:var(--danger);">&#10005;</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:12px;">
+                    <button class="btn btn-secondary btn-sm" onclick="showToast('Mapping toegevoegd', 'success')">+ Mapping toevoegen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- MODALS                                         -->
+<!-- ══════════════════════════════════════════════ -->
+
+<!-- New Declaration Modal -->
+<div class="modal-overlay" id="modal-new">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Nieuwe declaratie aanmaken</h3>
+            <button class="modal-close" onclick="closeModal('modal-new')">&#10005;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group" style="margin-bottom:16px;">
+                <label style="font-weight:600;margin-bottom:6px;display:block;">Link aan scheepsaanloop?</label>
+                <div style="display:flex;gap:12px;">
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.9rem;">
+                        <input type="radio" name="vessel-link" value="yes" checked onchange="toggleVesselSelect(true)"> Ja, koppel aan aanloop
+                    </label>
+                    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.9rem;">
+                        <input type="radio" name="vessel-link" value="no" onchange="toggleVesselSelect(false)"> Nee, standalone
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" id="vessel-select-group" style="margin-bottom:16px;">
+                <label>Selecteer scheepsaanloop</label>
+                <select id="vessel-select" style="width:100%;">
+                    <option value="">-- Kies een aanloop --</option>
+                    <option value="wf1">WILSON FLEX I - Antwerpen - ETA 12/02/2026 14:00</option>
+                    <option value="bbc">BBC OREGON - Zeebrugge - ETA 12/02/2026 08:00</option>
+                    <option value="sp">STELLAPRIMA - Antwerpen - ETA 11/02/2026 22:00</option>
+                    <option value="ns">NORDANA SEA - Zeebrugge - ETA 11/02/2026 06:00</option>
+                </select>
+            </div>
+            <div style="background:var(--primary-light);border-radius:8px;padding:12px;font-size:0.85rem;color:#1e40af;">
+                &#9432; Vessel details, agent info, and location codes will be auto-filled from the selected vessel call and your customs configuration.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-new')">Annuleren</button>
+            <button class="btn btn-primary" onclick="createDeclaration()">Aanmaken</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Item Modal -->
+<div class="modal-overlay" id="modal-item">
+    <div class="modal modal-wide">
+        <div class="modal-header">
+            <h3 id="item-modal-title">Item toevoegen</h3>
+            <button class="modal-close" onclick="closeModal('modal-item')">&#10005;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid form-grid-2" style="gap:16px;">
+                <div class="form-group span-2">
+                    <label>Description of Goods</label>
+                    <input type="text" id="mi-desc" placeholder="e.g. Steel coils hot rolled">
+                </div>
+                <div class="form-group">
+                    <label>HS Code (6-8 digits)</label>
+                    <input type="text" id="mi-hs" placeholder="e.g. 72083900" maxlength="8">
+                </div>
+                <div class="form-group">
+                    <label>Gross Mass (kg)</label>
+                    <input type="number" id="mi-mass" placeholder="e.g. 32000">
+                </div>
+                <div class="form-group">
+                    <label>TE Packed Status/Type</label>
+                    <select id="mi-te">
+                        <option value="8006">8006 - Breakbulk</option>
+                        <option value="A">A - ISO Container (empty, free circ.)</option>
+                        <option value="8007">8007 - Containerized</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Type of Packages</label>
+                    <select id="mi-pkg">
+                        <option value="PK">PK - Package</option>
+                        <option value="PL">PL - Pallet</option>
+                        <option value="CS">CS - Case</option>
+                        <option value="BG">BG - Bag</option>
+                        <option value="DR">DR - Drum</option>
+                        <option value="CN">CN - Container</option>
+                        <option value="CL">CL - Coil</option>
+                        <option value="BL">BL - Bale</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Quantity of Packages</label>
+                    <input type="number" id="mi-qty" placeholder="e.g. 12" min="1">
+                </div>
+            </div>
+
+            <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px;margin-top:20px;font-size:0.82rem;">
+                <strong style="color:#92400e;">Lege containers:</strong> HS code = <code style="background:#fef3c7;padding:1px 4px;border-radius:3px;">860900</code>, Package type = <code style="background:#fef3c7;padding:1px 4px;border-radius:3px;">CN</code>, Qty = <code style="background:#fef3c7;padding:1px 4px;border-radius:3px;">1</code>. TE type: <strong>A</strong> (ISO) or per Descartes manual (non-ISO).
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-item')">Annuleren</button>
+            <button class="btn btn-primary" onclick="saveItem()">Opslaan</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Envelope Modal -->
+<div class="modal-overlay" id="modal-envelope">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Proof of Union Status / Cargo Manifest</h3>
+            <button class="modal-close" onclick="closeModal('modal-envelope')">&#10005;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group" style="margin-bottom:16px;">
+                <label>Document Type</label>
+                <select id="me-type">
+                    <option value="C620">C620 - Proof of Union Status (T2L)</option>
+                    <option value="N785">N785 - Cargo Manifest Authorization (C-status)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Document Reference</label>
+                <input type="text" id="me-ref" placeholder="e.g. 24IT0000012345678 or authorization number">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-envelope')">Annuleren</button>
+            <button class="btn btn-primary" onclick="saveEnvelope()">Opslaan</button>
+        </div>
+    </div>
+</div>
+
+<!-- Export Confirmation Modal -->
+<div class="modal-overlay" id="modal-export">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Bestand exporteren</h3>
+            <button class="modal-close" onclick="closeModal('modal-export')">&#10005;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom:16px;">Het declaratiebestand wordt gegenereerd en gedownload. U kunt dit bestand daarna handmatig uploaden naar het <strong>IRP-portaal</strong> van de Belgische douane.</p>
+            <div class="form-group" style="margin-bottom:16px;">
+                <label>Export formaat</label>
+                <select>
+                    <option value="xml">IRP XML</option>
+                    <option value="cuscar">CUSCAR (EDIFACT)</option>
+                </select>
+            </div>
+            <div style="background:var(--success-light);border-radius:8px;padding:12px;font-size:0.85rem;color:#065f46;">
+                &#10003; Alle verplichte velden zijn ingevuld. Het bestand is klaar om te exporteren.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-export')">Annuleren</button>
+            <button class="btn btn-primary" onclick="doExport()">&#128196; Download bestand</button>
+        </div>
+    </div>
+</div>
+
+<!-- Submit Confirmation Modal -->
+<div class="modal-overlay" id="modal-submit">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Declaratie versturen</h3>
+            <button class="modal-close" onclick="closeModal('modal-submit')">&#10005;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom:16px;">Weet u zeker dat u deze declaratie wilt versturen naar <strong>Belgian Customs IRP</strong>?</p>
+            <p style="color:var(--grey);font-size:0.85rem;">Na verzending kunt u de declaratie niet meer bewerken totdat IRP een beslissing heeft genomen.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-submit')">Annuleren</button>
+            <button class="btn btn-success" onclick="doSubmit()">&#10148; Versturen</button>
+        </div>
+    </div>
+</div>
+
+<!-- Validation Error Modal -->
+<div class="modal-overlay" id="modal-validation">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 style="color:var(--danger);">Validatiefouten</h3>
+            <button class="modal-close" onclick="closeModal('modal-validation')">&#10005;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom:12px;">De volgende verplichte velden zijn niet ingevuld:</p>
+            <ul id="validation-errors" style="padding-left:20px;color:var(--danger);font-size:0.88rem;"></ul>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" onclick="closeModal('modal-validation')">Begrepen</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+
+const declarations = [
+    { id: 0, ucr: 'UCR-289341', vessel: 'WILSON FLEX I', imo: '9134270', eta: '12/02/2026 14:00', port: 'Antwerpen', agent: 'Agency BV', status: 'Ontwerp', statusClass: 'badge-grey', callStatus: 'Verwacht', callClass: 'badge-orange', updated: '12/02 09:15' },
+    { id: 1, ucr: 'UCR-289340', vessel: 'BBC OREGON', imo: '9505025', eta: '12/02/2026 08:00', port: 'Zeebrugge', agent: 'Maritime BV', status: 'In behandeling', statusClass: 'badge-yellow', callStatus: 'Gemeerd', callClass: 'badge-green', updated: '12/02 08:30' },
+    { id: 2, ucr: 'UCR-289338', vessel: 'STELLAPRIMA', imo: '9365886', eta: '11/02/2026 22:00', port: 'Antwerpen', agent: 'Agency BV', status: 'Goedgekeurd', statusClass: 'badge-green', callStatus: 'Gemeerd', callClass: 'badge-green', updated: '11/02 16:45' },
+    { id: 3, ucr: 'UCR-289335', vessel: 'NORDANA SEA', imo: '9444752', eta: '11/02/2026 06:00', port: 'Zeebrugge', agent: 'Trans NV', status: 'Afgekeurd', statusClass: 'badge-red', callStatus: 'Gemeerd', callClass: 'badge-green', updated: '11/02 14:20' },
+    { id: 4, ucr: 'UCR-289330', vessel: 'HAPPY STAR', imo: '9233468', eta: '10/02/2026 16:30', port: 'Antwerpen', agent: 'Agency BV', status: 'Ge\u00ebxporteerd', statusClass: 'badge-blue', callStatus: 'Gemeerd', callClass: 'badge-green', updated: '10/02 11:00' },
+];
+
+let currentDecl = 0;
+
+let consignmentItems = [
+    { desc: 'Steel coils hot rolled', hs: '72083900', mass: 32000, te: '8006', teName: 'Breakbulk', pkg: 'PK', pkgName: 'Package', qty: 12 },
+    { desc: 'Aluminium plates', hs: '76061200', mass: 8200, te: '8006', teName: 'Breakbulk', pkg: 'PL', pkgName: 'Pallet', qty: 40 },
+    { desc: 'Machinery parts', hs: '84314990', mass: 5000, te: '8006', teName: 'Breakbulk', pkg: 'CS', pkgName: 'Case', qty: 3 },
+];
+
+let envelopes = [];
+let editingItemIdx = -1;
+let editingEnvIdx = -1;
+
+const teLabels = { '8006': 'Breakbulk', 'A': 'ISO Container', '8007': 'Containerized' };
+const pkgLabels = { 'PK': 'Package', 'PL': 'Pallet', 'CS': 'Case', 'BG': 'Bag', 'DR': 'Drum', 'CN': 'Container', 'CL': 'Coil', 'BL': 'Bale' };
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+
+function showPage(page) {
+    document.getElementById('page-list').style.display = page === 'list' ? 'block' : 'none';
+    document.getElementById('page-detail').style.display = page === 'detail' ? 'block' : 'none';
+    document.getElementById('page-config').style.display = page === 'config' ? 'block' : 'none';
+
+    // Update sidebar active
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    if (page === 'list' || page === 'detail') {
+        document.getElementById('nav-customs').classList.add('active');
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// LIST VIEW
+// ═══════════════════════════════════════════════════════
+
+function switchListTab(el, tab) {
+    document.querySelectorAll('.list-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('table-active').style.display = tab === 'active' ? 'block' : 'none';
+    document.getElementById('table-archived').style.display = tab === 'archived' ? 'block' : 'none';
+}
+
+function filterTable() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#activeTableBody tr');
+    rows.forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+}
+
+// ═══════════════════════════════════════════════════════
+// DETAIL VIEW
+// ═══════════════════════════════════════════════════════
+
+function openDeclaration(idx) {
+    currentDecl = idx;
+    const d = declarations[idx];
+
+    document.getElementById('detail-title').innerHTML = `Customs declaratie &mdash; ${d.vessel}`;
+    document.getElementById('detail-status-badge').className = `badge ${d.statusClass}`;
+    document.getElementById('detail-status-badge').textContent = d.status;
+    document.getElementById('detail-ucr').textContent = d.ucr;
+    document.getElementById('detail-imo').textContent = d.imo;
+    document.getElementById('detail-eta').textContent = d.eta;
+    document.getElementById('detail-agent').textContent = d.agent;
+
+    // Update form fields for this declaration
+    document.getElementById('f-imo').value = d.imo;
+    document.getElementById('f-vessel').value = d.vessel;
+
+    // Enable/disable editing based on status
+    const editable = d.status === 'Ontwerp' || d.status === 'Ge\u00ebxporteerd' || d.status === 'Afgekeurd';
+    const inputs = document.querySelectorAll('#page-detail input, #page-detail select, #page-detail textarea');
+    inputs.forEach(inp => {
+        if (!editable) {
+            inp.setAttribute('readonly', true);
+            inp.setAttribute('disabled', true);
+        } else {
+            inp.removeAttribute('readonly');
+            inp.removeAttribute('disabled');
+        }
+    });
+
+    // Show/hide action buttons based on status
+    const canExport = d.status === 'Ontwerp' || d.status === 'Ge\u00ebxporteerd' || d.status === 'Goedgekeurd';
+    const canSubmit = d.status === 'Ontwerp' || d.status === 'Ge\u00ebxporteerd';
+    const canArchive = d.status === 'Goedgekeurd' || d.status === 'Afgekeurd';
+
+    document.getElementById('detail-actions').innerHTML = '';
+    const actionsDiv = document.getElementById('detail-actions');
+
+    if (editable) {
+        actionsDiv.innerHTML += `<button class="btn btn-primary" onclick="saveDeclaration()">&#128190; Opslaan</button>`;
+    }
+    if (canExport) {
+        actionsDiv.innerHTML += `<button class="btn btn-secondary" onclick="exportDeclaration()">&#128196; Exporteer bestand</button>`;
+    }
+    if (canSubmit) {
+        actionsDiv.innerHTML += `<button class="btn btn-success" onclick="submitDeclaration()">&#10148; Verstuur declaratie</button>`;
+    }
+    if (canArchive) {
+        actionsDiv.innerHTML += `<button class="btn btn-secondary" onclick="archiveDeclaration()">&#128451; Archiveer</button>`;
+    }
+
+    renderItemsTable();
+    renderEnvelopesTable();
+    switchTab(0);
+    showPage('detail');
+}
+
+// ═══════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════
+
+function switchTab(idx) {
+    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', i === idx);
+    });
+    document.querySelectorAll('.tab-content').forEach((tc, i) => {
+        tc.classList.toggle('active', i === idx);
+    });
+}
+
+// ═══════════════════════════════════════════════════════
+// CONSIGNMENT ITEMS
+// ═══════════════════════════════════════════════════════
+
+function renderItemsTable() {
+    const tbody = document.getElementById('itemsTableBody');
+    if (consignmentItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--grey);padding:32px;">Geen items toegevoegd. Klik op "+ Item toevoegen" om te beginnen.</td></tr>`;
+    } else {
+        tbody.innerHTML = consignmentItems.map((item, i) => `
+            <tr>
+                <td>${i + 1}</td>
+                <td><strong>${item.desc}</strong></td>
+                <td><code>${item.hs}</code></td>
+                <td>${item.mass.toLocaleString('nl-BE')}</td>
+                <td>${item.te} (${teLabels[item.te] || item.te})</td>
+                <td>${item.pkg} (${pkgLabels[item.pkg] || item.pkg})</td>
+                <td>${item.qty}</td>
+                <td>
+                    <div class="items-actions">
+                        <button class="btn btn-sm btn-ghost" onclick="editItem(${i})" title="Bewerken">&#9998;</button>
+                        <button class="btn btn-sm btn-ghost" onclick="duplicateItem(${i})" title="Dupliceren">&#10697;</button>
+                        <button class="btn btn-sm btn-ghost" style="color:var(--danger);" onclick="deleteItem(${i})" title="Verwijderen">&#10005;</button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+    document.getElementById('items-count').textContent = `${consignmentItems.length} item${consignmentItems.length !== 1 ? 's' : ''}`;
+    const totalMass = consignmentItems.reduce((s, it) => s + it.mass, 0);
+    document.getElementById('items-mass').textContent = `${totalMass.toLocaleString('nl-BE')} kg`;
+}
+
+function openItemModal(idx) {
+    editingItemIdx = idx !== undefined ? idx : -1;
+    const m = document.getElementById('item-modal-title');
+
+    if (editingItemIdx >= 0) {
+        m.textContent = 'Item bewerken';
+        const item = consignmentItems[editingItemIdx];
+        document.getElementById('mi-desc').value = item.desc;
+        document.getElementById('mi-hs').value = item.hs;
+        document.getElementById('mi-mass').value = item.mass;
+        document.getElementById('mi-te').value = item.te;
+        document.getElementById('mi-pkg').value = item.pkg;
+        document.getElementById('mi-qty').value = item.qty;
+    } else {
+        m.textContent = 'Item toevoegen';
+        document.getElementById('mi-desc').value = '';
+        document.getElementById('mi-hs').value = '';
+        document.getElementById('mi-mass').value = '';
+        document.getElementById('mi-te').value = '8006';
+        document.getElementById('mi-pkg').value = 'PK';
+        document.getElementById('mi-qty').value = '';
+    }
+    openModal('modal-item');
+}
+
+function saveItem() {
+    const desc = document.getElementById('mi-desc').value.trim();
+    const hs = document.getElementById('mi-hs').value.trim();
+    const mass = parseInt(document.getElementById('mi-mass').value) || 0;
+    const te = document.getElementById('mi-te').value;
+    const pkg = document.getElementById('mi-pkg').value;
+    const qty = parseInt(document.getElementById('mi-qty').value) || 0;
+
+    if (!desc || !hs || !mass || !qty) {
+        showToast('Vul alle verplichte velden in', 'error');
+        return;
+    }
+
+    const item = { desc, hs, mass, te, teName: teLabels[te] || te, pkg, pkgName: pkgLabels[pkg] || pkg, qty };
+
+    if (editingItemIdx >= 0) {
+        consignmentItems[editingItemIdx] = item;
+    } else {
+        consignmentItems.push(item);
+    }
+
+    renderItemsTable();
+    closeModal('modal-item');
+    showToast(editingItemIdx >= 0 ? 'Item bijgewerkt' : 'Item toegevoegd', 'success');
+}
+
+function editItem(idx) { openItemModal(idx); }
+
+function duplicateItem(idx) {
+    consignmentItems.push({ ...consignmentItems[idx] });
+    renderItemsTable();
+    showToast('Item gedupliceerd', 'success');
+}
+
+function deleteItem(idx) {
+    if (confirm('Weet u zeker dat u dit item wilt verwijderen?')) {
+        consignmentItems.splice(idx, 1);
+        renderItemsTable();
+        showToast('Item verwijderd', 'success');
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// IRP ENVELOPES
+// ═══════════════════════════════════════════════════════
+
+function renderEnvelopesTable() {
+    const tbody = document.getElementById('envelopesTableBody');
+    const empty = document.getElementById('envelopes-empty');
+    const table = document.getElementById('envelopesTableWrap');
+
+    if (envelopes.length === 0) {
+        table.style.display = 'none';
+        empty.style.display = 'block';
+    } else {
+        table.style.display = 'block';
+        empty.style.display = 'none';
+        tbody.innerHTML = envelopes.map((env, i) => {
+            const result = env.type === 'C620'
+                ? '<span class="badge badge-green">T2L</span> Union goods with proof'
+                : '<span class="badge badge-blue">C-status</span> Cargo manifest';
+            const typeLabel = env.type === 'C620' ? 'C620 - Proof of Union Status' : 'N785 - Cargo Manifest Auth.';
+            return `
+                <tr>
+                    <td>${typeLabel}</td>
+                    <td><code>${env.ref}</code></td>
+                    <td>${result}</td>
+                    <td>
+                        <div class="items-actions">
+                            <button class="btn btn-sm btn-ghost" onclick="editEnvelope(${i})">&#9998;</button>
+                            <button class="btn btn-sm btn-ghost" style="color:var(--danger);" onclick="deleteEnvelope(${i})">&#10005;</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+    document.getElementById('envelopes-count').textContent = `${envelopes.length} document${envelopes.length !== 1 ? 'en' : ''}`;
+}
+
+function openEnvelopeModal(idx) {
+    editingEnvIdx = idx !== undefined ? idx : -1;
+    if (editingEnvIdx >= 0) {
+        document.getElementById('me-type').value = envelopes[editingEnvIdx].type;
+        document.getElementById('me-ref').value = envelopes[editingEnvIdx].ref;
+    } else {
+        document.getElementById('me-type').value = 'C620';
+        document.getElementById('me-ref').value = '';
+    }
+    openModal('modal-envelope');
+}
+
+function saveEnvelope() {
+    const type = document.getElementById('me-type').value;
+    const ref = document.getElementById('me-ref').value.trim();
+    if (!ref) { showToast('Vul een document reference in', 'error'); return; }
+
+    if (editingEnvIdx >= 0) {
+        envelopes[editingEnvIdx] = { type, ref };
+    } else {
+        envelopes.push({ type, ref });
+    }
+    renderEnvelopesTable();
+    closeModal('modal-envelope');
+    showToast(editingEnvIdx >= 0 ? 'Document bijgewerkt' : 'Document toegevoegd', 'success');
+}
+
+function editEnvelope(idx) { openEnvelopeModal(idx); }
+
+function deleteEnvelope(idx) {
+    if (confirm('Document verwijderen?')) {
+        envelopes.splice(idx, 1);
+        renderEnvelopesTable();
+        showToast('Document verwijderd', 'success');
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════
+
+function saveDeclaration() {
+    showToast('Declaratie opgeslagen', 'success');
+}
+
+function exportDeclaration() {
+    const errors = validateDeclaration();
+    if (errors.length > 0) {
+        showValidationErrors(errors);
+        return;
+    }
+    openModal('modal-export');
+}
+
+function doExport() {
+    closeModal('modal-export');
+    declarations[currentDecl].status = 'Ge\u00ebxporteerd';
+    declarations[currentDecl].statusClass = 'badge-blue';
+    document.getElementById('detail-status-badge').className = 'badge badge-blue';
+    document.getElementById('detail-status-badge').textContent = 'Ge\u00ebxporteerd';
+    showToast('Bestand gedownload. Status: Ge\u00ebxporteerd', 'success');
+}
+
+function submitDeclaration() {
+    const errors = validateDeclaration();
+    if (errors.length > 0) {
+        showValidationErrors(errors);
+        return;
+    }
+    openModal('modal-submit');
+}
+
+function doSubmit() {
+    closeModal('modal-submit');
+    declarations[currentDecl].status = 'Verstuurd';
+    declarations[currentDecl].statusClass = 'badge-orange';
+    document.getElementById('detail-status-badge').className = 'badge badge-orange';
+    document.getElementById('detail-status-badge').textContent = 'Verstuurd';
+    showToast('Declaratie verstuurd naar IRP', 'success');
+
+    // Update action buttons
+    document.getElementById('detail-actions').innerHTML = '';
+}
+
+function archiveDeclaration() {
+    if (confirm('Declaratie archiveren?')) {
+        declarations[currentDecl].status = 'Gearchiveerd';
+        declarations[currentDecl].statusClass = 'badge-lightgrey';
+        showToast('Declaratie gearchiveerd', 'success');
+        showPage('list');
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// VALIDATION
+// ═══════════════════════════════════════════════════════
+
+function validateDeclaration() {
+    const errors = [];
+    if (!document.getElementById('f-imo').value.trim()) errors.push('General: IMO Number is verplicht');
+    if (!document.getElementById('f-vessel').value.trim()) errors.push('General: Vessel Name is verplicht');
+    if (!document.getElementById('f-voyage').value.trim()) errors.push('General: Voyage Number is verplicht');
+    if (!document.getElementById('f-locode').value.trim()) errors.push('General: UN/LOCODE is verplicht');
+    if (!document.getElementById('f-warehouse').value.trim()) errors.push('General: Warehouse Identifier is verplicht');
+    if (!document.getElementById('f-decl-name').value.trim()) errors.push('Parties: Declarant Company Name is verplicht');
+    if (!document.getElementById('f-decl-eori').value.trim()) errors.push('Parties: EORI Number is verplicht');
+    if (!document.getElementById('f-bl').value.trim()) errors.push('Master Consignment: B/L Number is verplicht');
+    if (!document.getElementById('f-mass').value) errors.push('Master Consignment: Total Gross Mass is verplicht');
+    if (consignmentItems.length === 0) errors.push('Consignment Items: Minstens 1 item vereist');
+    return errors;
+}
+
+function showValidationErrors(errors) {
+    const ul = document.getElementById('validation-errors');
+    ul.innerHTML = errors.map(e => `<li>${e}</li>`).join('');
+
+    // Mark tabs with errors
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    tabBtns.forEach(btn => btn.classList.remove('has-error'));
+    errors.forEach(e => {
+        if (e.startsWith('General')) tabBtns[0].classList.add('has-error');
+        if (e.startsWith('Parties')) tabBtns[1].classList.add('has-error');
+        if (e.startsWith('Master')) tabBtns[2].classList.add('has-error');
+        if (e.startsWith('Consignment')) tabBtns[3].classList.add('has-error');
+    });
+
+    openModal('modal-validation');
+}
+
+// ═══════════════════════════════════════════════════════
+// NEW DECLARATION
+// ═══════════════════════════════════════════════════════
+
+function openNewDeclarationModal() {
+    openModal('modal-new');
+}
+
+function toggleVesselSelect(show) {
+    document.getElementById('vessel-select-group').style.display = show ? 'block' : 'none';
+}
+
+function createDeclaration() {
+    const linked = document.querySelector('input[name="vessel-link"]:checked').value === 'yes';
+    const vessel = linked ? document.getElementById('vessel-select').value : null;
+
+    if (linked && !vessel) {
+        showToast('Selecteer een scheepsaanloop', 'error');
+        return;
+    }
+
+    closeModal('modal-new');
+
+    // Reset items and envelopes for new declaration
+    consignmentItems = [];
+    envelopes = [];
+
+    if (linked) {
+        // Auto-fill based on vessel selection
+        const vesselData = {
+            'wf1': { name: 'WILSON FLEX I', imo: '9134270', eta: '12/02/2026 14:00' },
+            'bbc': { name: 'BBC OREGON', imo: '9505025', eta: '12/02/2026 08:00' },
+            'sp': { name: 'STELLAPRIMA', imo: '9365886', eta: '11/02/2026 22:00' },
+            'ns': { name: 'NORDANA SEA', imo: '9444752', eta: '11/02/2026 06:00' },
+        };
+        const v = vesselData[vessel];
+        document.getElementById('f-imo').value = v.imo;
+        document.getElementById('f-vessel').value = v.name;
+        document.getElementById('detail-title').innerHTML = `Customs declaratie &mdash; ${v.name}`;
+        document.getElementById('detail-imo').textContent = v.imo;
+        document.getElementById('detail-eta').textContent = v.eta;
+    } else {
+        document.getElementById('f-imo').value = '';
+        document.getElementById('f-vessel').value = '';
+        document.getElementById('f-stay').value = '';
+        document.getElementById('f-voyage').value = '';
+        document.getElementById('detail-title').innerHTML = 'Customs declaratie &mdash; Standalone';
+        document.getElementById('detail-imo').textContent = '--';
+        document.getElementById('detail-eta').textContent = '--';
+    }
+
+    document.getElementById('detail-status-badge').className = 'badge badge-grey';
+    document.getElementById('detail-status-badge').textContent = 'Ontwerp';
+    document.getElementById('detail-ucr').textContent = 'UCR-' + (289342 + Math.floor(Math.random() * 100));
+    document.getElementById('detail-agent').textContent = 'Agency BV';
+
+    // Enable all fields
+    const inputs = document.querySelectorAll('#page-detail input, #page-detail select, #page-detail textarea');
+    inputs.forEach(inp => { inp.removeAttribute('readonly'); inp.removeAttribute('disabled'); });
+
+    // Reset action buttons
+    document.getElementById('detail-actions').innerHTML = `
+        <button class="btn btn-primary" onclick="saveDeclaration()">&#128190; Opslaan</button>
+        <button class="btn btn-secondary" onclick="exportDeclaration()">&#128196; Exporteer bestand</button>
+        <button class="btn btn-success" onclick="submitDeclaration()">&#10148; Verstuur declaratie</button>
+    `;
+
+    renderItemsTable();
+    renderEnvelopesTable();
+    switchTab(0);
+    showPage('detail');
+    showToast(linked ? 'Declaratie aangemaakt met auto-fill' : 'Standalone declaratie aangemaakt', 'success');
+}
+
+// ═══════════════════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════════════════
+
+function openModal(id) {
+    document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('open');
+    });
+});
+
+// Close modal on Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+    }
+});
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+
+function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + (type || '') + ' show';
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+
+renderItemsTable();
+renderEnvelopesTable();
+</script>
+
+</body>
+</html>
