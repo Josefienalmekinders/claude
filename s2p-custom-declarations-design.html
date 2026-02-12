@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S2P Custom Declarations — Design Specification</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary: #1a56db;
+            --primary-light: #e8eefb;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --grey: #6b7280;
+            --light-grey: #f3f4f6;
+            --dark: #1f2937;
+            --border: #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--dark);
+            background: #f9fafb;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        h1 small {
+            display: block;
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--grey);
+            margin-top: 4px;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-top: 48px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--dark);
+        }
+
+        p, li { margin-bottom: 8px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--primary-light); }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--grey);
+        }
+
+        .card.green { border-left-color: var(--success); }
+        .card.blue { border-left-color: var(--info); }
+        .card.orange { border-left-color: var(--warning); }
+        .card.red { border-left-color: var(--danger); }
+
+        .card h4 { font-size: 0.85rem; color: var(--grey); text-transform: uppercase; letter-spacing: 0.5px; }
+        .card .value { font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-grey { background: #e5e7eb; color: #4b5563; }
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-orange { background: #fed7aa; color: #c2410c; }
+        .badge-yellow { background: #fef3c7; color: #92400e; }
+        .badge-green { background: #d1fae5; color: #065f46; }
+        .badge-red { background: #fee2e2; color: #991b1b; }
+        .badge-lightgrey { background: #f3f4f6; color: #9ca3af; }
+
+        .phase-banner {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 16px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--info);
+        }
+
+        .phase-banner strong { color: var(--primary); }
+
+        .mermaid {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .section-box {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .autofill-tag {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .tab-bar {
+            display: flex;
+            gap: 0;
+            margin: 24px 0 0 0;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab {
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--grey);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .note-box {
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .note-box strong { color: #92400e; }
+
+        .info-box {
+            background: var(--primary-light);
+            border: 1px solid #93c5fd;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        code {
+            background: var(--light-grey);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .toc {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 6px 0; }
+        .toc a { color: var(--primary); text-decoration: none; font-weight: 500; }
+        .toc a:hover { text-decoration: underline; }
+
+        .status-row { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+
+        @media print {
+            body { background: white; }
+            .container { max-width: 100%; }
+            .mermaid { box-shadow: none; border: 1px solid var(--border); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>
+        S2P Custom Declarations Module
+        <small>Design Specification &mdash; Temporary Storage Declarations (TSD) for Belgian Customs IRP</small>
+    </h1>
+
+    <div class="toc">
+        <strong>Inhoud</strong>
+        <ul>
+            <li><a href="#overview">1. Overview &amp; Scope</a></li>
+            <li><a href="#decisions">2. Key Design Decisions</a></li>
+            <li><a href="#ui">3. User Interface Design</a></li>
+            <li><a href="#tabs">4. Tab Structure &amp; Fields</a></li>
+            <li><a href="#workflow">5. Workflow &amp; Statuses</a></li>
+            <li><a href="#datamodel">6. Data Model</a></li>
+            <li><a href="#autofill">7. Auto-Fill Logic</a></li>
+            <li><a href="#export">8. File Export &amp; Validation</a></li>
+            <li><a href="#config">9. Configuration</a></li>
+            <li><a href="#phases">10. Phased Rollout</a></li>
+            <li><a href="#comparison">11. PAX vs Customs Comparison</a></li>
+            <li><a href="#flowchart">12. Process Flowchart</a></li>
+        </ul>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2 id="overview">1. Overview &amp; Scope</h2>
+
+    <p>A new <strong>Customs Declarations module</strong> within S2P for creating and managing <strong>Temporary Storage Declarations (TSD)</strong> submitted to <strong>Belgian Customs (IRP)</strong> via file export. The module follows the same UI patterns as the existing PAX declarations module and mirrors the Descartes data structure and workflow.</p>
+
+    <div class="phase-banner">
+        <strong>Phase 1 (MVP):</strong> Internal staff creates and manages declarations on behalf of clients. File export for manual upload to IRP.
+    </div>
+    <div class="phase-banner">
+        <strong>Phase 2:</strong> Clients gain read-only access to view declaration status and history.
+    </div>
+    <div class="phase-banner">
+        <strong>Phase 3:</strong> Templates, ICO terminal support, bulk import, direct IRP API integration.
+    </div>
+
+    <!-- ============================================================ -->
+    <h2 id="decisions">2. Key Design Decisions</h2>
+
+    <table>
+        <tr><th>Decision</th><th>Chosen Approach</th></tr>
+        <tr><td>Declaration type</td><td>Cargo/goods &mdash; Temporary Storage Declaration (TSD)</td></tr>
+        <tr><td>Target authority</td><td>Belgian Customs IRP</td></tr>
+        <tr><td>Integration method</td><td>File export (format TBD: IRP XML or CUSCAR)</td></tr>
+        <tr><td>Vessel link</td><td>Optional &mdash; can link to vessel call or standalone</td></tr>
+        <tr><td>Identifier config</td><td>Separate customs-specific configuration (not reusing PAX EORI)</td></tr>
+        <tr><td>Auto-fill</td><td>Vessel details, agent/declarant details, location codes from S2P</td></tr>
+        <tr><td>UI pattern</td><td>Same look &amp; feel as PAX module</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2 id="ui">3. User Interface &mdash; Overview Page</h2>
+
+    <p>A new top-level menu item <strong>"Customs declaraties"</strong> is added alongside the existing "PAX declaraties".</p>
+
+    <div class="card-grid">
+        <div class="card">
+            <h4>Totaal declaraties</h4>
+            <div class="value">17</div>
+        </div>
+        <div class="card green">
+            <h4>Goedgekeurd</h4>
+            <div class="value">8</div>
+        </div>
+        <div class="card orange">
+            <h4>In behandeling</h4>
+            <div class="value">4</div>
+        </div>
+        <div class="card blue">
+            <h4>Totaal items</h4>
+            <div class="value">142</div>
+        </div>
+    </div>
+
+    <h3>Declaratie tabel (voorbeeld data)</h3>
+
+    <table>
+        <tr>
+            <th>UCR-nummer</th>
+            <th>ETA</th>
+            <th>Status aanloop</th>
+            <th>Scheepsnaam</th>
+            <th>Haven</th>
+            <th>Agent</th>
+            <th>Status declaratie</th>
+            <th>Laatste update</th>
+        </tr>
+        <tr>
+            <td>UCR-289341</td>
+            <td>12/02/2026 14:00</td>
+            <td><span class="badge badge-orange">Verwacht</span></td>
+            <td>WILSON FLEX I</td>
+            <td>Antwerpen</td>
+            <td>Agency BV</td>
+            <td><span class="badge badge-grey">Ontwerp</span></td>
+            <td>12/02 09:15</td>
+        </tr>
+        <tr>
+            <td>UCR-289340</td>
+            <td>12/02/2026 08:00</td>
+            <td><span class="badge badge-green">Gemeerd</span></td>
+            <td>BBC OREGON</td>
+            <td>Zeebrugge</td>
+            <td>Maritime BV</td>
+            <td><span class="badge badge-yellow">In behandeling</span></td>
+            <td>12/02 08:30</td>
+        </tr>
+        <tr>
+            <td>UCR-289338</td>
+            <td>11/02/2026 22:00</td>
+            <td><span class="badge badge-green">Gemeerd</span></td>
+            <td>STELLAPRIMA</td>
+            <td>Antwerpen</td>
+            <td>Agency BV</td>
+            <td><span class="badge badge-green">Goedgekeurd</span></td>
+            <td>11/02 16:45</td>
+        </tr>
+        <tr>
+            <td>UCR-289335</td>
+            <td>11/02/2026 06:00</td>
+            <td><span class="badge badge-green">Gemeerd</span></td>
+            <td>NORDANA SEA</td>
+            <td>Zeebrugge</td>
+            <td>Trans NV</td>
+            <td><span class="badge badge-red">Afgekeurd</span></td>
+            <td>11/02 14:20</td>
+        </tr>
+        <tr>
+            <td>UCR-289330</td>
+            <td>10/02/2026 16:30</td>
+            <td><span class="badge badge-green">Gemeerd</span></td>
+            <td>HAPPY STAR</td>
+            <td>Antwerpen</td>
+            <td>Agency BV</td>
+            <td><span class="badge badge-blue">Ge&euml;xporteerd</span></td>
+            <td>10/02 11:00</td>
+        </tr>
+        <tr>
+            <td style="color: #9ca3af;">&mdash;</td>
+            <td style="color: #9ca3af;">&mdash;</td>
+            <td style="color: #9ca3af;">&mdash;</td>
+            <td>BULK CARRIER VII</td>
+            <td style="color: #9ca3af;">&mdash;</td>
+            <td>Trans NV</td>
+            <td><span class="badge badge-grey">Ontwerp</span> <small style="color:#9ca3af;">(standalone)</small></td>
+            <td>10/02 09:00</td>
+        </tr>
+    </table>
+
+    <div class="info-box">
+        Last row shows a <strong>standalone declaration</strong> (no vessel link) &mdash; UCR, ETA, status aanloop, and haven are empty.
+    </div>
+
+    <!-- ============================================================ -->
+    <h2 id="tabs">4. Tab Structure &amp; Fields</h2>
+
+    <div class="tab-bar">
+        <div class="tab active">General</div>
+        <div class="tab">Parties</div>
+        <div class="tab">Master Consignment</div>
+        <div class="tab">Consignment Items</div>
+        <div class="tab">IRP Envelopes</div>
+    </div>
+
+    <!-- TAB GENERAL -->
+    <div class="section-box">
+        <h3>TAB 1: General</h3>
+
+        <h4 style="margin-top:16px; color: var(--primary);">Instellingen</h4>
+        <table>
+            <tr><th>Field</th><th>Type</th><th>Default / Example</th><th>Notes</th></tr>
+            <tr><td>Response Language</td><td>Dropdown</td><td>EN</td><td>EN / FR / NL</td></tr>
+            <tr><td>Send to IRP</td><td>Toggle</td><td>1 (Ja)</td><td></td></tr>
+            <tr><td>Customs Office</td><td>Dropdown</td><td>BE101000</td><td>Configurable list</td></tr>
+        </table>
+
+        <h4 style="margin-top:16px; color: var(--primary);">Border Transport Means</h4>
+        <table>
+            <tr><th>Field</th><th>Type</th><th>Default / Example</th><th>Notes</th></tr>
+            <tr><td>IMO Number</td><td>Text</td><td>9134270</td><td><span class="autofill-tag">AUTO-FILL</span> from vessel call</td></tr>
+            <tr><td>Stay Reference</td><td>Text</td><td>ANT-2026-02891</td><td><span class="autofill-tag">AUTO-FILL</span></td></tr>
+            <tr><td>Vessel Name</td><td>Text</td><td>WILSON FLEX I</td><td><span class="autofill-tag">AUTO-FILL</span></td></tr>
+            <tr><td>Identification Type</td><td>Dropdown</td><td>10</td><td>IMO Ship Identification</td></tr>
+            <tr><td>Voyage Number</td><td>Text</td><td>VY2026-044</td><td><span class="autofill-tag">AUTO-FILL</span></td></tr>
+            <tr><td>Date</td><td>Date picker</td><td>12/02/2026</td><td><span class="autofill-tag">AUTO-FILL</span> ETA</td></tr>
+        </table>
+
+        <h4 style="margin-top:16px; color: var(--primary);">Location of Goods</h4>
+        <table>
+            <tr><th>Field</th><th>Type</th><th>Default</th><th>Notes</th></tr>
+            <tr><td>Location Type</td><td>Dropdown</td><td>B</td><td></td></tr>
+            <tr><td>Qualifier</td><td>Dropdown</td><td>U</td><td></td></tr>
+            <tr><td>UN/LOCODE</td><td>Text/Dropdown</td><td>BEBUANR000148</td><td><span class="autofill-tag">AUTO-FILL</span> from config</td></tr>
+        </table>
+
+        <h4 style="margin-top:16px; color: var(--primary);">Warehouse &amp; Unloading</h4>
+        <table>
+            <tr><th>Field</th><th>Type</th><th>Default</th><th>Notes</th></tr>
+            <tr><td>Warehouse Identifier</td><td>Text</td><td>BETST2400370</td><td><span class="autofill-tag">AUTO-FILL</span> from config</td></tr>
+            <tr><td>Warehouse Type</td><td>Dropdown</td><td>V</td><td></td></tr>
+            <tr><td>Unloading Place</td><td>Text</td><td>BEBUANR000148</td><td></td></tr>
+        </table>
+
+        <h4 style="margin-top:16px; color: var(--primary);">Place of Loading &amp; Destination</h4>
+        <table>
+            <tr><th>Field</th><th>Type</th><th>Default</th><th>Notes</th></tr>
+            <tr><td>Loading UN/LOCODE</td><td>Text/Dropdown</td><td>ITGOA</td><td>Port of loading</td></tr>
+            <tr><td>Discharge UN/LOCODE</td><td>Text/Dropdown</td><td>BEANR</td><td><span class="autofill-tag">AUTO-FILL</span></td></tr>
+        </table>
+    </div>
+
+    <!-- TAB PARTIES -->
+    <div class="section-box">
+        <h3>TAB 2: Parties</h3>
+        <table>
+            <tr><th>Field</th><th>Type</th><th>Example</th><th>Notes</th></tr>
+            <tr><td>Company Name</td><td>Text</td><td>Agency BV</td><td><span class="autofill-tag">AUTO-FILL</span></td></tr>
+            <tr><td>EORI Number</td><td>Text</td><td>BE0123456789</td><td>From customs config</td></tr>
+            <tr><td>Address</td><td>Text</td><td>Noorderlaan 133</td><td><span class="autofill-tag">AUTO-FILL</span></td></tr>
+            <tr><td>Postal Code</td><td>Text</td><td>2030</td><td><span class="autofill-tag">AUTO-FILL</span></td></tr>
+            <tr><td>City</td><td>Text</td><td>Antwerpen</td><td><span class="autofill-tag">AUTO-FILL</span></td></tr>
+            <tr><td>Country</td><td>Dropdown</td><td>BE</td><td><span class="autofill-tag">AUTO-FILL</span></td></tr>
+            <tr><td>Email Address</td><td>Email</td><td>customs@agency-bv.be</td><td><span class="autofill-tag">AUTO-FILL</span></td></tr>
+        </table>
+    </div>
+
+    <!-- TAB MASTER CONSIGNMENT -->
+    <div class="section-box">
+        <h3>TAB 3: Master Consignment</h3>
+
+        <h4 style="margin-top:16px; color: var(--primary);">Transport Document</h4>
+        <table>
+            <tr><th>Field</th><th>Type</th><th>Example</th><th>Notes</th></tr>
+            <tr><td>Document Identifier</td><td>Text</td><td>MEDU1234567</td><td>B/L number</td></tr>
+            <tr><td>Document Type</td><td>Dropdown</td><td>N705</td><td>Bill of Lading</td></tr>
+        </table>
+
+        <h4 style="margin-top:16px; color: var(--primary);">Totals &amp; Previous Document</h4>
+        <table>
+            <tr><th>Field</th><th>Type</th><th>Example</th><th>Notes</th></tr>
+            <tr><td>Total Gross Mass (kg)</td><td>Number</td><td>45200</td><td>Auto-calculated from items</td></tr>
+            <tr><td>Previous Doc Reference</td><td>Text</td><td>24IT0000012345678</td><td>Optional &mdash; previous MRN</td></tr>
+            <tr><td>Previous Doc Type</td><td>Dropdown</td><td>N355</td><td>MRN</td></tr>
+        </table>
+
+        <h4 style="margin-top:16px; color: var(--primary);">Consignor / Consignee / Notify Party</h4>
+        <table>
+            <tr><th>Role</th><th>Fields</th><th>Type default</th><th>Notes</th></tr>
+            <tr><td>Consignor (Afzender)</td><td>Name, Type, Address, City, Country, Postal Code</td><td>2 (Legal person)</td><td>Required</td></tr>
+            <tr><td>Consignee (Geadresseerde)</td><td>Name, Type, Address, City, Country, Postal Code</td><td>2 (Legal person)</td><td>Required</td></tr>
+            <tr><td>Notify Party</td><td>Name, Type, Address, City, Country, Postal Code</td><td>2 (Legal person)</td><td>Optional</td></tr>
+        </table>
+    </div>
+
+    <!-- TAB CONSIGNMENT ITEMS -->
+    <div class="section-box">
+        <h3>TAB 4: Consignment Items</h3>
+
+        <p>List of cargo line items with add/edit/duplicate/delete actions.</p>
+
+        <table>
+            <tr><th>#</th><th>Description</th><th>HS Code</th><th>Gross Mass (kg)</th><th>TE Type</th><th>Package Type</th><th>Qty</th></tr>
+            <tr><td>1</td><td>Steel coils hot rolled</td><td>72083900</td><td>32.000</td><td>8006 (Breakbulk)</td><td>PK (Package)</td><td>12</td></tr>
+            <tr><td>2</td><td>Aluminium plates</td><td>76061200</td><td>8.200</td><td>8006 (Breakbulk)</td><td>PL (Pallet)</td><td>40</td></tr>
+            <tr><td>3</td><td>Machinery parts</td><td>84314990</td><td>5.000</td><td>8006 (Breakbulk)</td><td>CS (Case)</td><td>3</td></tr>
+        </table>
+
+        <h4 style="margin-top:16px; color: var(--primary);">Item Fields</h4>
+        <table>
+            <tr><th>Field</th><th>Type</th><th>Notes</th></tr>
+            <tr><td>Description of Goods</td><td>Text</td><td>Free text</td></tr>
+            <tr><td>HS Code</td><td>Text (6-8 digits)</td><td>With lookup helper</td></tr>
+            <tr><td>Gross Mass (kg)</td><td>Number</td><td></td></tr>
+            <tr><td>TE Packed Status/Type</td><td>Dropdown</td><td>Default 8006 (Breakbulk)</td></tr>
+            <tr><td>Type of Packages</td><td>Dropdown</td><td>Standard packaging codes</td></tr>
+            <tr><td>Quantity of Packages</td><td>Number</td><td></td></tr>
+        </table>
+
+        <div class="note-box">
+            <strong>Lege containers:</strong> HS code must be <code>860900</code>, Type of Packages: <code>CN</code>, Qty: <code>1</code>. TE type depends on ISO vs NON-ISO. The system provides a selection helper for this scenario.
+        </div>
+    </div>
+
+    <!-- TAB IRP ENVELOPES -->
+    <div class="section-box">
+        <h3>TAB 5: IRP Envelopes</h3>
+
+        <p>Controls the customs status of goods (T1 / T2L / C-status).</p>
+
+        <table>
+            <tr><th>Scenario</th><th>Document Type</th><th>Reference</th><th>Result</th></tr>
+            <tr><td>No document entered</td><td>&mdash;</td><td>&mdash;</td><td><span class="badge badge-red">T1</span> Non-Union goods</td></tr>
+            <tr><td>Proof of Union Status</td><td>C620</td><td>Previous MRN (e.g. from Italy)</td><td><span class="badge badge-green">T2L</span> Union goods with proof</td></tr>
+            <tr><td>Cargo Manifest auth.</td><td>N785</td><td>Permit/authorization number</td><td><span class="badge badge-blue">C-status</span> Cargo manifest</td></tr>
+        </table>
+
+        <div class="info-box">
+            A pop-up form is used for adding/editing proof documents &mdash; with fields for Document Reference and Type (C620 or N785).
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2 id="workflow">5. Workflow &amp; Statuses</h2>
+
+    <div class="mermaid">
+        stateDiagram-v2
+            [*] --> Ontwerp
+            Ontwerp --> Geexporteerd : Exporteer bestand
+            Ontwerp --> Verstuurd : Verstuur declaratie
+            Geexporteerd --> Verstuurd : Upload naar IRP bevestigd
+            Verstuurd --> In_behandeling : IRP ontvangt declaratie
+            In_behandeling --> Goedgekeurd : IRP keurt goed
+            In_behandeling --> Afgekeurd : IRP wijst af
+            Afgekeurd --> Ontwerp : Corrigeer en herindien
+            Goedgekeurd --> Gearchiveerd : Archiveer
+            Afgekeurd --> Gearchiveerd : Archiveer
+    </div>
+
+    <h3>Status Overzicht</h3>
+
+    <div class="status-row">
+        <span class="badge badge-grey">Ontwerp (Draft)</span>
+        <span class="badge badge-blue">Ge&euml;xporteerd (Exported)</span>
+        <span class="badge badge-orange">Verstuurd (Submitted)</span>
+        <span class="badge badge-yellow">In behandeling (Processing)</span>
+        <span class="badge badge-green">Goedgekeurd (Approved)</span>
+        <span class="badge badge-red">Afgekeurd (Rejected)</span>
+        <span class="badge badge-lightgrey">Gearchiveerd (Archived)</span>
+    </div>
+
+    <h3>Allowed Actions per Status</h3>
+    <table>
+        <tr><th>Action</th><th>Ontwerp</th><th>Ge&euml;xport.</th><th>Verstuurd</th><th>In behandeling</th><th>Goedgekeurd</th><th>Afgekeurd</th></tr>
+        <tr><td>Edit fields</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Export file</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Submit</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td><td>No</td><td>No</td></tr>
+        <tr><td>Archive</td><td>No</td><td>No</td><td>No</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2 id="datamodel">6. Data Model</h2>
+
+    <div class="mermaid">
+        erDiagram
+            CUSTOMS_DECLARATION ||--o| VESSEL_CALL : "optionally linked to"
+            CUSTOMS_DECLARATION ||--|| DECLARATION_GENERAL : has
+            CUSTOMS_DECLARATION ||--|| DECLARATION_PARTIES : has
+            CUSTOMS_DECLARATION ||--|| MASTER_CONSIGNMENT : has
+            MASTER_CONSIGNMENT ||--|{ CONSIGNMENT_ITEM : contains
+            MASTER_CONSIGNMENT ||--o| CONSIGNOR : has
+            MASTER_CONSIGNMENT ||--o| CONSIGNEE : has
+            MASTER_CONSIGNMENT ||--o| NOTIFY_PARTY : has
+            CUSTOMS_DECLARATION ||--o{ IRP_ENVELOPE : has
+            CUSTOMS_DECLARATION ||--|| CUSTOMS_CONFIG : uses
+    </div>
+
+    <h3>Core Tables</h3>
+
+    <h4 style="margin-top:16px; color: var(--primary);">customs_declaration</h4>
+    <table>
+        <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+        <tr><td>id</td><td>UUID</td><td>Primary key</td></tr>
+        <tr><td>ucr_number</td><td>VARCHAR</td><td>Unique Consignment Reference</td></tr>
+        <tr><td>vessel_call_id</td><td>UUID (nullable)</td><td>FK to vessel call (optional)</td></tr>
+        <tr><td>status</td><td>ENUM</td><td>Ontwerp / Ge&euml;xporteerd / Verstuurd / In_behandeling / Goedgekeurd / Afgekeurd / Gearchiveerd</td></tr>
+        <tr><td>response_language</td><td>VARCHAR(2)</td><td>EN / FR / NL</td></tr>
+        <tr><td>send_to_irp</td><td>BOOLEAN</td><td>Flag for IRP submission</td></tr>
+        <tr><td>customs_office</td><td>VARCHAR(20)</td><td>e.g. BE101000</td></tr>
+        <tr><td>created_by</td><td>UUID</td><td>FK to user</td></tr>
+        <tr><td>created_at / updated_at</td><td>TIMESTAMP</td><td></td></tr>
+    </table>
+
+    <h4 style="margin-top:16px; color: var(--primary);">consignment_item</h4>
+    <table>
+        <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+        <tr><td>id</td><td>UUID</td><td>Primary key</td></tr>
+        <tr><td>master_consignment_id</td><td>UUID</td><td>FK</td></tr>
+        <tr><td>goods_description</td><td>TEXT</td><td>Description of goods</td></tr>
+        <tr><td>hs_code</td><td>VARCHAR(8)</td><td>Harmonised commodity code</td></tr>
+        <tr><td>gross_mass</td><td>DECIMAL</td><td>Weight in kg</td></tr>
+        <tr><td>te_packed_status</td><td>VARCHAR</td><td>Default 8006 (Breakbulk)</td></tr>
+        <tr><td>package_type</td><td>VARCHAR</td><td>Packaging code</td></tr>
+        <tr><td>package_quantity</td><td>INTEGER</td><td></td></tr>
+    </table>
+
+    <div class="info-box">
+        See the full data model in <code>s2p-custom-declarations-design.md</code> for all table definitions including border transport, location, parties, and IRP envelope tables.
+    </div>
+
+    <!-- ============================================================ -->
+    <h2 id="autofill">7. Auto-Fill Logic</h2>
+
+    <p>When creating a declaration <strong>linked to a vessel call</strong>, these fields are pre-populated:</p>
+
+    <table>
+        <tr><th>Field</th><th>Source</th></tr>
+        <tr><td>IMO Number</td><td>Vessel call &rarr; vessel.imo</td></tr>
+        <tr><td>Stay Reference</td><td>Vessel call &rarr; stay_reference</td></tr>
+        <tr><td>Vessel Name</td><td>Vessel call &rarr; vessel.name</td></tr>
+        <tr><td>Voyage Number</td><td>Vessel call &rarr; voyage_number</td></tr>
+        <tr><td>Transport Date</td><td>Vessel call &rarr; ETA</td></tr>
+        <tr><td>Discharge UN/LOCODE</td><td>Vessel call &rarr; port.un_locode</td></tr>
+        <tr><td>Declarant (all fields)</td><td>Current user &rarr; company profile</td></tr>
+        <tr><td>Customs Office</td><td>Customs config &rarr; default</td></tr>
+        <tr><td>UN/LOCODE, Warehouse</td><td>Customs config &rarr; defaults</td></tr>
+    </table>
+
+    <div class="note-box">
+        <strong>Standalone declarations:</strong> Only agent/config-based fields are pre-populated. All vessel fields must be entered manually.
+    </div>
+
+    <!-- ============================================================ -->
+    <h2 id="export">8. File Export &amp; Validation</h2>
+
+    <p>Before export, the system validates all mandatory fields:</p>
+
+    <table>
+        <tr><th>Mandatory Field</th><th>Tab</th></tr>
+        <tr><td>Customs Office</td><td>General</td></tr>
+        <tr><td>All Border Transport Means fields</td><td>General</td></tr>
+        <tr><td>Location of Goods (UN/LOCODE)</td><td>General</td></tr>
+        <tr><td>Warehouse Identifier</td><td>General</td></tr>
+        <tr><td>Declarant name &amp; EORI</td><td>Parties</td></tr>
+        <tr><td>Transport Document (B/L number)</td><td>Master Consignment</td></tr>
+        <tr><td>Total Gross Mass</td><td>Master Consignment</td></tr>
+        <tr><td>At least 1 item with Description, HS Code, Mass, Packages</td><td>Consignment Items</td></tr>
+    </table>
+
+    <p>Validation errors are shown inline on the relevant tab with a red error count badge on the tab header.</p>
+
+    <!-- ============================================================ -->
+    <h2 id="config">9. Configuration Page</h2>
+
+    <table>
+        <tr><th>Setting</th><th>Description</th><th>Example</th></tr>
+        <tr><td>Customs Registration Number</td><td>Company's Belgian customs registration</td><td>BE0123456789</td></tr>
+        <tr><td>Default Customs Office</td><td>Pre-selected customs office code</td><td>BE101000</td></tr>
+        <tr><td>Default Warehouse Identifier</td><td>Standard warehouse code</td><td>BETST2400370</td></tr>
+        <tr><td>Default Warehouse Type</td><td>Warehouse category</td><td>V</td></tr>
+        <tr><td>Default UN/LOCODE</td><td>Default location code</td><td>BEBUANR000148</td></tr>
+        <tr><td>Location-to-LOCODE Mapping</td><td>Map S2P terminals to UN/LOCODEs</td><td>Kaai 730 &rarr; BEBUANR000148</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2 id="phases">10. Phased Rollout</h2>
+
+    <table>
+        <tr><th>Phase</th><th>Feature</th><th>Description</th></tr>
+        <tr><td><span class="badge badge-green">Phase 1</span></td><td>Core module</td><td>Internal declaration creation, editing, file export</td></tr>
+        <tr><td><span class="badge badge-blue">Phase 2</span></td><td>Client access</td><td>Read-only status view, email notifications on status change</td></tr>
+        <tr><td><span class="badge badge-orange">Phase 3</span></td><td>Templates</td><td>Save/load recurring declaration templates</td></tr>
+        <tr><td><span class="badge badge-orange">Phase 3</span></td><td>ICO terminals</td><td>Trading Partner configuration for ICO terminals</td></tr>
+        <tr><td><span class="badge badge-orange">Phase 3</span></td><td>Bulk import</td><td>Upload cargo items from Excel/CSV</td></tr>
+        <tr><td><span class="badge badge-orange">Phase 3</span></td><td>Direct IRP API</td><td>Automated submission and status polling</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2 id="comparison">11. PAX vs Customs Module Comparison</h2>
+
+    <table>
+        <tr><th>Aspect</th><th>PAX Declaraties</th><th>Customs Declaraties</th></tr>
+        <tr><td>Summary cards</td><td>Totaal / Goedgekeurd / In behandeling / Totaal PAX</td><td>Totaal / Goedgekeurd / In behandeling / Totaal items</td></tr>
+        <tr><td>Config button</td><td>EORI-nummers configureren</td><td>Customs configuratie</td></tr>
+        <tr><td>Tab structure</td><td>Single view with person list</td><td>5 tabs (General, Parties, Master Consignment, Items, IRP Envelopes)</td></tr>
+        <tr><td>Line items</td><td>Persons (crew/passengers)</td><td>Cargo items (goods/commodities)</td></tr>
+        <tr><td>Item fields</td><td>Name, nationality, gender, DOB, ID type/nr</td><td>Description, HS code, weight, packages, TE type</td></tr>
+        <tr><td>Actions</td><td>Persoon toevoegen, Upload lijst, ISPS-verzoek</td><td>Item toevoegen, Exporteer bestand, Verstuur declaratie</td></tr>
+        <tr><td>Submission target</td><td>Internal (agent &rarr; terminal approval)</td><td>Belgian Customs IRP (file export)</td></tr>
+        <tr><td>Vessel link</td><td>Required</td><td>Optional (can be standalone)</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2 id="flowchart">12. Process Flowchart</h2>
+
+    <div class="mermaid">
+        flowchart TD
+            Start([Start]) --> Choice{Vessel call linked?}
+            Choice -->|Yes| AutoFill[Auto-fill vessel and agent details from S2P]
+            Choice -->|No| Manual[Manual entry of all fields]
+            AutoFill --> General[TAB General: Customs Office, Location, Warehouse, Transport Means]
+            Manual --> General
+            General --> Parties[TAB Parties: Declarant details]
+            Parties --> MasterCon[TAB Master Consignment: B/L, Gross Mass, Consignor/Consignee]
+            MasterCon --> Items[TAB Consignment Items: Add cargo line items - HS code, weight, packages]
+            Items --> IRP[TAB IRP Envelopes: T1/T2L/C-status, Proof of Union Status]
+            IRP --> Validate{All mandatory fields filled?}
+            Validate -->|No| ShowErrors[Show validation errors per tab]
+            ShowErrors --> General
+            Validate -->|Yes| Action{User action}
+            Action -->|Save| Draft[Status: Ontwerp]
+            Draft --> Action
+            Action -->|Export| Export[Generate file and download]
+            Export --> Exported[Status: Geexporteerd]
+            Exported --> UploadIRP[User uploads to IRP portal manually]
+            Action -->|Submit| Submitted[Status: Verstuurd]
+            Submitted --> Processing[Status: In behandeling]
+            Processing --> Result{IRP decision}
+            Result -->|Approved| Approved[Status: Goedgekeurd]
+            Result -->|Rejected| Rejected[Status: Afgekeurd]
+            Rejected --> Correct[Correct errors]
+            Correct --> General
+            Approved --> Archive[Archive]
+            Rejected --> Archive
+            style Start fill:#4A90D9,color:#fff
+            style Approved fill:#27AE60,color:#fff
+            style Rejected fill:#E74C3C,color:#fff
+            style Draft fill:#95A5A6,color:#fff
+            style Exported fill:#3498DB,color:#fff
+            style Submitted fill:#F39C12,color:#fff
+            style Processing fill:#F1C40F,color:#333
+    </div>
+
+    <br><br>
+    <hr>
+    <p style="color: var(--grey); font-size: 0.85rem; text-align: center;">
+        Document version 1.0 &mdash; Created: 2026-02-12 &mdash; Based on Descartes TSD manual &amp; S2P PAX module design
+    </p>
+
+</div>
+
+<script>
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
+
+</body>
+</html>
